@@ -16,46 +16,45 @@ function renderPokemon(pokemon = pokemonDB[0]) {
         <div class="row d-grid m-0"><h3>${pokemon.name}</h3></div>
         <div class="row d-grid m-0"><p>${pokemon.type}</p></div>
         <div class="container"><img src="${pokemon.img}" /></div>
-        <div class="row row-cols-2 m-0">
-          <button class="like-button btn btn-outline-danger">♥ ${pokemon.likes}</button>
-          <button class="delete-button btn btn-danger fw-bold">Delete</button>
-        </div>
       </div>
     </div>
     `;
   return pokemonDiv;
 }
-// document.body.append(renderPokemon());
-
-const pokeContainer = document.querySelector('#poke-container');
-
-pokemonDB.forEach(pokemon => {
-  const pokemonDiv = fetchPokemon(pokemon.name);
-});
-
-const likeButtons = document.querySelectorAll('.like-button');
-const deleteButtons = document.querySelectorAll('.delete-button');
-const form = document.querySelector('#poke-form');
-const nameInput = document.querySelector('#name-input');
-const imgInput = document.querySelector('#img-input');
-
-async function fetchPokemon(pokemonName) {
+/* <div class="row row-cols-2 m-0">
+<button data-id=${pokemon.id} class="like-button btn btn-outline-danger">♥ ${pokemon.likes}</button>
+<button class="delete-button btn btn-danger fw-bold">Delete</button>
+</div>
+ */
+async function fetchPokemon(pokemonName, likes = 0, id) {
   let url = `https://pokeapi.co/api/v2/pokemon/${pokemonName}`;
   const response = await fetch(url);
   const data = await response.json();
 
   const newPokemon = {
-    id: pokemonDB.length + 1,
+    id: id || pokemonDB.length + 1,
     name: data.name,
     type: data.types[0].type.name,
     img: data.sprites?.other['official-artwork']?.front_default || data.sprites?.front_default || 'no image',
-    likes: 0,
+    likes: likes,
   };
   pokemonDB.push(newPokemon);
   const pokemonDiv = renderPokemon(newPokemon);
   pokeContainer.append(pokemonDiv);
 }
+
+const form = document.querySelector('#poke-form');
 form.addEventListener('submit', (e) => {
   e.preventDefault();
   fetchPokemon(nameInput.value);
+});
+
+
+const pokeContainer = document.querySelector('#poke-container');
+const deleteButtons = document.querySelectorAll('.delete-button');
+const nameInput = document.querySelector('#name-input');
+const imgInput = document.querySelector('#img-input');
+
+pokemonDB.forEach(pokemon => {
+  fetchPokemon(pokemon.name, pokemon.likes, pokemon.id);
 });
